@@ -1,0 +1,14 @@
+# vim crap
+*.swp
+
+# output files
+out/*.lua
+
+# the incredibly important love-api module!
+modules/
+love_api.lua
+
+# eclipse garbage
+.buildpath
+.project
+.settings/
