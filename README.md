@@ -5,6 +5,7 @@ Probably the most important part of an Eclipse LDT Execution Environment is the 
 This utility creates all the files needed for a LOVE2D api.zip and puts them in out/, provided you feed it the definitions from https://github.com/rm-code/love-api.
 
 **This project currently does not include type definitions in its output, only declarations.** It'll happen soon enough.
+**This project currently only outputs the first definition for a function.** Any overloading is ignored.
 
 ## Credits
 
@@ -28,4 +29,4 @@ Obviously https://github.com/rm-code/love-api/ is incredibly important, too.
 
 ## Pre-built downloads
 
-Coming soon.
+Go see https://github.com/leafi/love-eclipse-ldt for that sort of thing. That'll give you the whole execution environment.
