@@ -29,15 +29,25 @@ typeFQN["string"] = "#string"
 typeFQN["table"] = "#table"
 -- ... not the best, but what you gonna do ...
 typeFQN["light userdata"] = "#table"
+-- dunno! (physics.Body:getUserData())
+typeFQN["value"] = ""
 -- ... can't express these well at all.
 typeFQN["function"] = "" -- LuaDoc expects the full function contract. We can't give it that.
 typeFQN["mixed"] = "" -- this literally means 'whatever', so...
+typeFQN["any"] = ""
 
 print("PATCH #negativeOne: The erroneous and non-existent SearchOrder should actually be a boolean.")
 typeFQN["SearchOrder"] = "#boolean"
 
 print("PATCH #negativeTwo: Scancodes are strings, basically.")
 typeFQN["Scancode"] = "#string"
+
+print("PATCH #negativeThree: No-one knows what a ShaderVariableType is.")
+typeFQN["ShaderVariableType"] = ""
+
+-- magic self type (for internal use)
+typeFQN["self"] = "self"
+
 
 -- Takes only the first line of a string.
 function firstLine(s)
@@ -140,12 +150,8 @@ local function iLoveIt()
     learnTypesAndEnums(mod)
   end
   
-  -- HACK: SearchOrder type is referenced in the source files, but no definition exists!
-  if not typeFQN["SearchOrder"] then
-    
-  end
+  love_file:write(describeAllTypes(api))
   
-  --local getver1, getver2 = describeFun("#love", api.functions[1])
   love_file:write(describeAllFuncsAndCallbacks(api))
   
   love_file:write("\nreturn nil\n")
@@ -165,6 +171,8 @@ local function iLoveIt()
     file:write("-- \n")
     file:write("-- @module " .. mod.name .. "\n")
     file:write("-- \n\n")
+    
+    file:write(describeAllTypes(mod))
     
     file:write(describeAllFuncsAndCallbacks(mod))
     
@@ -229,6 +237,19 @@ function learnTypesAndEnums(mod)
   end
 end
 
+function describeAllTypes(mod)
+  local pn = "#" .. mod.name
+  local out = {}
+  
+  if mod.types then
+    for _, t in ipairs(mod.types) do
+      table.insert(out, describeType(pn, t))
+    end
+  end
+  
+  return table.concat(out)
+end
+
 function describeAllFuncsAndCallbacks(mod)
   local pn = "#" .. mod.name
   local out = {}
@@ -248,7 +269,63 @@ function describeAllFuncsAndCallbacks(mod)
   return table.concat(out)
 end
 
-function describeFun(parent, fun)
+function describeType(parent, t)
+  local name = t.name
+  local shortDesc = firstLine(t.description)
+  local longDesc = otherLines(t.description)
+  
+  local sb = {}
+  local function push(s) table.insert(sb, s) end
+  
+  push("---\n")
+  push("-- ")
+  push(shortDesc or name)
+  push("\n")
+  
+  if longDesc then
+    push("-- \n")
+    push(commentify(longDesc))
+  end
+  
+  push("-- @type ")
+  push(name)
+  push("\n")
+  
+  if t.supertypes then
+    for _, v in ipairs(t.supertypes) do
+      push("-- @extends ")
+      if not typeFQN[v] then error("[type emit] unknown type at this time: " .. v .. " (while parsing " .. parent .. ")") end
+      local typ = typeFQN[v]
+      push(typ)
+      push("\n")
+    end
+  end
+  
+  -- Wheee, no fields ever on Love2d types!
+  -- So we don't have to worry about that.
+  
+  push("\n")
+  
+  if t.functions then
+    for _, v in ipairs(t.functions) do
+      -- ... all definitions need self parameters. bah.
+      for _, v2 in ipairs(v.functions) do
+        if not v2.arguments then v2.arguments = {} end
+        table.insert(v2.arguments, 1, {
+          type = 'self',
+          name = 'self'
+        })
+      end
+      push(describeFun("#" .. name, v, parent))
+    end
+  end
+  
+  push("\n")
+  
+  return table.concat(sb)
+end
+
+function describeFun(parent, fun, dbg2)
   -- for some ridiculous reason, functions contain a table called functions. i assume this handles function overloading,
   -- but honestly, who knows.
   --
@@ -282,7 +359,7 @@ function describeFun(parent, fun)
   if def.arguments then
     for _, arg in ipairs(def.arguments) do
       push("-- @param ")
-      if not typeFQN[arg.type] then error("unknown type at this time: " .. arg.type .. " (while parsing " .. parent .. ")") end
+      if not typeFQN[arg.type] then error("[func arg emit] unknown type at this time: " .. arg.type .. " (while parsing " .. parent .. " hint:" .. tostring(dbg2) .. ")") end
       local typ = typeFQN[arg.type]
       push(typ)
       if typ ~= "" then push(" ") end
@@ -296,7 +373,7 @@ function describeFun(parent, fun)
   if def.returns then
     for _, ret in ipairs(def.returns) do
       push("-- @return ")
-      if not typeFQN[ret.type] then error("unknown type at this time: " .. ret.type .. " (while parsing " .. parent .. ")") end
+      if not typeFQN[ret.type] then error("[func retval emit] unknown type at this time: " .. ret.type .. " (while parsing " .. parent .. " hint:" .. tostring(dbg2) .. ")") end
       local typ = typeFQN[ret.type]
       push(typ)
       if typ ~= "" then push(" ") end
