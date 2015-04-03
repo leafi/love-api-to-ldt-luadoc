@@ -6,6 +6,8 @@ This utility creates all the files needed for a LOVE2D api.zip and puts them in 
 
 **This project currently only outputs the first definition for a function.** Any overloading is ignored.
 
+**Enum definitions aren't encoded.**
+
 We do output types fairly completely, and all the functions on them, though.
 
 ## Credits
