@@ -2,9 +2,9 @@
 
 Probably the most important part of an Eclipse LDT Execution Environment is the api.zip file.
 
-This utility creates all the files needed for a LOVE2D api.zip and puts them in out/, provided you feed it the definitions from https://github.com/rm-code/love-api.
+This utility creates all the files needed for a LOVE2D api.zip and puts them in api/, provided you feed it the definitions from https://github.com/love2d-community/love-api.
 
-**This project currently only outputs the last definition for a function.** Every variant gets exported, though. But metalua implementation in LDT only sets the last seen function as its spec.
+**This project currently seems to output the last definition for a function when imported in LDT.** Every variant gets exported, though. But metalua implementation in LDT only sets the last seen function as its spec.
 
 **Enum definitions aren't encoded.**
 
@@ -28,7 +28,7 @@ Obviously https://github.com/love2d-community/love-api is incredibly important, 
 
 5. Hopefully, it succeeded. (File an issue if not and the built-in diagnostics don't help.)
 
-6. Given that it succeeded: Go **inside** the out/ folder and zip up everything in there. That's your api.zip!
+6. Given that it succeeded: Go **inside** the api/ folder and zip up everything in there. That's your api.zip!
 
 ## Pre-built downloads
 
