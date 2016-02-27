@@ -1,6 +1,6 @@
 print("If this doesn't work:")
-print(" - you should drag love_api.lua & modules/ from love-api-0.9.2d into this directory")
-print(" - you also need to make an out/ directory. we'll overwrite if we have to.")
+print(" - you should drag love_api.lua & modules/ from love-api-0.10.0 into this directory")
+print(" - you also need to make an api/ directory. we'll overwrite if we have to.")
 
 local api = require("love_api")
 
@@ -36,13 +36,7 @@ typeFQN["function"] = "" -- LuaDoc expects the full function contract. We can't 
 typeFQN["mixed"] = "" -- this literally means 'whatever', so...
 typeFQN["any"] = ""
 
-print("PATCH #negativeOne: The erroneous and non-existent SearchOrder should actually be a boolean.")
-typeFQN["SearchOrder"] = "#boolean"
-
-print("PATCH #negativeTwo: Scancodes are strings, basically.")
-typeFQN["Scancode"] = "#string"
-
-print("PATCH #negativeThree: No-one knows what a ShaderVariableType is.")
+print("PATCH #negativeOne: No-one knows what a ShaderVariableType is.")
 typeFQN["ShaderVariableType"] = ""
 
 -- magic self type (for internal use)
@@ -123,14 +117,14 @@ end
 local function iLoveIt()
 
   -- let's write out a love.lua, referencing all of the modules.
-  print("Writing out/love.lua...")
+  print("Writing api/love.lua...")
   
   -- (...and we'll start it with the contents of builtins/love.lua.HEADER)
   local lfhf = io.open("builtins/love.lua.HEADER", "r")
   local love_file_header = lfhf:read("*all")
   lfhf:close()
   
-  local love_file = io.open("out/love.lua", "w")
+  local love_file = io.open("api/love.lua", "w")
   love_file:write(love_file_header)
   love_file:write("\n")
   
@@ -158,15 +152,15 @@ local function iLoveIt()
   
   love_file:close()
   
-  print("Wrote out/love.lua OK")
+  print("Wrote api/love.lua OK")
   
   
   -- now, write out the other modules.
   for _, mod in ipairs(api.modules) do
-    print("Writing out/" .. mod.name .. ".lua...")
-    local file = io.open("out/" .. mod.name .. ".lua", "w")
+    print("Writing api/" .. mod.name .. ".lua...")
+    local file = io.open("api/" .. mod.name .. ".lua", "w")
     
-    file:write("---\n")
+    file:write("--------------------------------------------------------------------------------\n")
     if mod.description then file:write(commentify(mod.description)) end
     file:write("-- \n")
     file:write("-- @module " .. mod.name .. "\n")
@@ -179,12 +173,12 @@ local function iLoveIt()
     file:write("\nreturn nil\n")
     
     file:close()
-    print("Wrote out/" .. mod.name .. ".lua OK")
+    print("Wrote api/" .. mod.name .. ".lua OK")
   end
 
   
   print("\nEverything's going well! Now for the busywork.")
-  print("Copying all files matching builtins/*.lua to out/*.lua...")
+  print("Copying all files matching builtins/*.lua to api/*.lua...")
   
   local toCopy = {}
   local sawGlobal = false
@@ -205,12 +199,12 @@ local function iLoveIt()
   end
   
   for _, fn in ipairs(toCopy) do
-    copyfile("builtins/" .. fn .. ".lua", "out/" .. fn .. ".lua")
+    copyfile("builtins/" .. fn .. ".lua", "api/" .. fn .. ".lua")
   end
 
   print("Copy OK")
   
-  print("\nDone! Zip up the *contents* of out/, and that right there is your api.zip.")
+  print("\nDone! Zip up the *contents* of api/, and that right there is your api.zip.")
   print("One of the two essential herbs and spices of an LDT Execution Environment!")
   
 end
@@ -255,14 +249,18 @@ function describeAllFuncsAndCallbacks(mod)
   local out = {}
   
   if mod.functions then
-    for _, f in ipairs(mod.functions) do
-      table.insert(out, describeFun(pn, f))
+    for _, fun in ipairs(mod.functions) do
+      for _, var in ipairs(fun.variants) do
+        table.insert(out, describeFun(pn, fun, var))
+      end
     end
   end
   
   if mod.callbacks then
-    for _, f in ipairs(mod.callbacks) do
-      table.insert(out, describeFun(pn, f))
+    for _, fun in ipairs(mod.callbacks) do
+      for _, var in ipairs(fun.variants) do
+        table.insert(out, describeFun(pn, fun, var))
+      end
     end
   end
   
@@ -277,7 +275,7 @@ function describeType(parent, t)
   local sb = {}
   local function push(s) table.insert(sb, s) end
   
-  push("---\n")
+  push("-------------------------------------------------------------------------------\n")
   push("-- ")
   push(shortDesc or name)
   push("\n")
@@ -307,16 +305,22 @@ function describeType(parent, t)
   push("\n")
   
   if t.functions then
-    for _, v in ipairs(t.functions) do
+    for _, fun in ipairs(t.functions) do
       -- ... all definitions need self parameters. bah.
-      for _, v2 in ipairs(v.functions) do
-        if not v2.arguments then v2.arguments = {} end
-        table.insert(v2.arguments, 1, {
+      for _, var in ipairs(fun.variants) do
+        if not var.arguments then var.arguments = {} end
+        table.insert(var.arguments, 1, {
           type = 'self',
           name = 'self'
         })
+        --Every function has now its own member with the sets of variants (aka overloads).
+        --We just push them out all, eclipse LDT (as of writing) just takes the last 
+        --variation it finds (as it just overwrites the table at the function index).
+        push(describeFun("#" .. name, fun, var, parent))
       end
-      push(describeFun("#" .. name, v, parent))
+      --If you just want the first variant exported, uncomment this.
+      --Or someone writes a fancy variant detection?!
+      --push(describeFun("#" .. name, fun, fun.variants[1], parent))  
     end
   end
   
@@ -325,21 +329,16 @@ function describeType(parent, t)
   return table.concat(sb)
 end
 
-function describeFun(parent, fun, dbg2)
-  -- for some ridiculous reason, functions contain a table called functions. i assume this handles function overloading,
-  -- but honestly, who knows.
-  --
-  -- for now (!!!) we'll take only the first definition.
-  
+function describeFun(parent, fun, var, dbg2)
   local name = fun.name
   local shortDesc = firstLine(fun.description)
   local longDesc = otherLines(fun.description)
-  local def = fun.functions[1]
+  local def = var
   
   local sb = {}
   local function push(s) table.insert(sb, s) end
   
-  push("---\n")
+  push("-------------------------------------------------------------------------------\n")
   
   push("-- ")
   push(shortDesc or name)
@@ -350,7 +349,7 @@ function describeFun(parent, fun, dbg2)
     push(commentify(longDesc))
   end
   
-  push("-- @function [parent = ")
+  push("-- @function[parent=")
   push(parent)
   push("] ")
   push(name)
