@@ -1,17 +1,22 @@
 print("If this doesn't work:")
-print(" - you should drag love_api.lua & modules/ from love-api-0.10.0 into this directory")
+print(" - you should drag love_api.lua & modules/ from love-api-0.10.1 into this directory")
 print(" - you also need to make an api/ directory. we'll overwrite if we have to.")
 
 local api = require("love_api")
 
 -- references:
 --  original LuaDoc for Koneki (LDT before data format change): https://github.com/RamiLego4Game/LOVELuaDoc-0.9.0
---  love-api (the entire LOVE api in a table): https://github.com/rm-code/love-api/ (make sure you get the -0.9.2d tag!)
+--  love-api (the entire LOVE api in a table): https://github.com/love2d-community/love-api (make sure you get the -0.10.1 tag!)
 --  how to actually write LuaDoc, with functions on tables & custom types: https://wiki.eclipse.org/LDT/User_Area/Documentation_Language
 
 print(tostring(api) .. " OK")
 
 print("Patching API...")
+print("PATCH #0: Applying 'love.'-Prefix to all modules")
+for _, mod in ipairs(api.modules) do
+  mod._name = mod.name
+  mod.name = "love."..mod.name
+end
 local patchFun = require("patch")
 patchFun(api)
 
