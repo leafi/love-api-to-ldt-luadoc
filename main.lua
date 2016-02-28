@@ -11,6 +11,8 @@ local api = require("love_api")
 
 print(tostring(api) .. " OK")
 
+-- we prefix every module with "love." to avoid nameclashes (e.g. math and love.math).
+-- also this is where they actually are...
 print("Patching API...")
 print("PATCH #0: Applying 'love.'-Prefix to all modules")
 for _, mod in ipairs(api.modules) do
@@ -20,7 +22,7 @@ end
 local patchFun = require("patch")
 patchFun(api)
 
--- typeFQN format: key: type name, value: fully qualified name (e.g. ["object"] = "love#Object") 
+-- typeFQN format: [type name] = fully qualified name (e.g. ["object"] = "love#Object") 
 typeFQN = {}
 -- add basic lua types
 typeFQN["boolean"] = "#boolean"
