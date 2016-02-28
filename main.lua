@@ -20,10 +20,6 @@ end
 local patchFun = require("patch")
 patchFun(api)
 
--- things to look for: functions, modules, types
-
--- don't care about callbacks really. they're few and far between.
-
 -- typeFQN format: key: type name, value: fully qualified name (e.g. ["object"] = "love#Object") 
 typeFQN = {}
 -- add basic lua types
@@ -34,7 +30,7 @@ typeFQN["string"] = "#string"
 typeFQN["table"] = "#table"
 -- ... not the best, but what you gonna do ...
 typeFQN["light userdata"] = "#table"
--- dunno! (physics.Body:getUserData())
+-- dunno! (love.physics.Body:getUserData())
 typeFQN["value"] = ""
 -- ... can't express these well at all.
 typeFQN["function"] = "" -- LuaDoc expects the full function contract. We can't give it that.
@@ -149,6 +145,7 @@ local function iLoveIt()
     learnTypesAndEnums(mod)
   end
   
+  --write out everything from base love module
   love_file:write(describeAllTypes(api))
   
   love_file:write(describeAllFuncsAndCallbacks(api))
