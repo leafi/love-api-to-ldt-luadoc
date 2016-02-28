@@ -2,7 +2,7 @@
 *.swp
 
 # output files
-out/*.lua
+api/*.lua
 
 # the incredibly important love-api module!
 modules/

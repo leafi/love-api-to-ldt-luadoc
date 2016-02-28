@@ -18,39 +18,51 @@
 -- is `i`.
 -- Note that numerical codes are not necessarily portable across platforms.
 -- @function [parent=#string] byte
--- @param s
--- @param i
--- @param j
+-- @param #string s string to handle.
+-- @param #number i start index, default value is 1.
+-- @param #number j end index, default value is `i`.
+-- @return the internal numerical codes of the characters `s[i]`, `s[i+1]`,..., `s[j]`
 
 -------------------------------------------------------------------------------
 -- Receives zero or more integers. Returns a string with length equal to
 -- the number of arguments, in which each character has the internal numerical
 -- code equal to its corresponding argument.
+-- 
 -- Note that numerical codes are not necessarily portable across platforms.
 -- @function [parent=#string] char
+-- @param ... zero or more integers.
+-- @return #string a string with length equal to
+-- the number of arguments, in which each character has the internal numerical
+-- code equal to its corresponding argument.
 
 -------------------------------------------------------------------------------
 -- Returns a string containing a binary representation of the given
 -- function, so that a later `loadstring` on this string returns a copy of
 -- the function. `function` must be a Lua function without upvalues.
 -- @function [parent=#string] dump
+-- @param f the function to dump.
+-- @return #string a string representation of the given function.
 
 -------------------------------------------------------------------------------
 -- Looks for the first match of `pattern` in the string `s`. If it finds a
 -- match, then `find` returns the indices of `s` where this occurrence starts
--- and ends; otherwise, it returns nil. A third, optional numerical argument
+-- and ends; otherwise, it returns nil.A third, optional numerical argument
 -- `init` specifies where to start the search; its default value is 1 and
 -- can be negative. A value of true as a fourth, optional argument `plain`
 -- turns off the pattern matching facilities, so the function does a plain
 -- "find substring" operation, with no characters in `pattern` being considered
--- "magic". Note that if `plain` is given, then `init` must be given as well.
+-- "magic". 
+-- 
+-- Note that if `plain` is given, then `init` must be given as well.
 -- If the pattern has captures, then in a successful match the captured values
 -- are also returned, after the two indices.
 -- @function [parent=#string] find
--- @param s
--- @param pattern
--- @param init
--- @param plain
+-- @param #string s string to handle.
+-- @param #string pattern pattern to search. 
+-- @param #number init index where to start the search. (default value is 1)
+-- @param #boolean plain set to true to search without pattern matching. (default value is false)
+-- @return #number, #number start and end indices of first occurence.
+-- @return #nil if pattern not found.
 
 -------------------------------------------------------------------------------
 -- Returns a formatted version of its variable number of arguments following
@@ -75,7 +87,9 @@
 -- This function does not accept string values containing embedded zeros,
 -- except as arguments to the `q` option.
 -- @function [parent=#string] format
--- @param formatstring
+-- @param #string formatstring the string template. 
+-- @param ... arguments could be strings or numbers.
+-- @return #string the formatted string.
 
 -------------------------------------------------------------------------------
 -- Returns an iterator function that, each time it is called, returns the
@@ -101,8 +115,8 @@
 -- For this function, a '`^`' at the start of a pattern does not work as an
 -- anchor, as this would prevent the iteration.
 -- @function [parent=#string] gmatch
--- @param s
--- @param pattern
+-- @param #string s string to handle.
+-- @param #string pattern pattern to search.
 
 -------------------------------------------------------------------------------
 -- Returns a copy of `s` in which all (or the first `n`, if given)
@@ -131,6 +145,7 @@
 -- match is kept in the string).
 --
 -- Here are some examples:
+-- 
 --     x = string.gsub("hello world", "(%w+)", "%1 %1")
 --     --> x="hello hello world world"
 --     x = string.gsub("hello world", "%w+", "%0 %0", 1)
@@ -147,23 +162,26 @@
 --     x = string.gsub("$name-$version.tar.gz", "%$(%w+)", t)
 --     --> x="lua-5.1.tar.gz"
 -- @function [parent=#string] gsub
--- @param s
--- @param pattern
--- @param repl
--- @param n
+-- @param #string s string to handle.
+-- @param #string pattern pattern to search. 
+-- @param repl replacement could be a string, a table or a function.
+-- @param #number n number of occurences to replace, default is nil which means all occurences. 
+-- @return #string a modified copy of `s`.
 
 -------------------------------------------------------------------------------
 -- Receives a string and returns its length. The empty string `""` has
 -- length 0. Embedded zeros are counted, so `"a\000bc\000"` has length 5.
 -- @function [parent=#string] len
--- @param s
+-- @param #string s string to handle.
+-- @return #number the lenght of `s`.
 
 -------------------------------------------------------------------------------
 -- Receives a string and returns a copy of this string with all uppercase
 -- letters changed to lowercase. All other characters are left unchanged. The
 -- definition of what an uppercase letter is depends on the current locale.
 -- @function [parent=#string] lower
--- @param s
+-- @param #string s string to handle.
+-- @return #string a lower case version of `s`.
 
 -------------------------------------------------------------------------------
 -- Looks for the first *match* of `pattern` in the string `s`. If it
@@ -172,21 +190,23 @@
 -- is returned. A third, optional numerical argument `init` specifies where
 -- to start the search; its default value is 1 and can be negative.
 -- @function [parent=#string] match
--- @param s
--- @param pattern
--- @param init
+-- @param #string s string to handle.
+-- @param #string pattern pattern to search. 
+-- @param #number init index where to start the search. (default value is 1)
+-- @return #string the captures from the pattern; otherwise it returns nil. If pattern specifies no captures, then the whole match is returned. 
 
 -------------------------------------------------------------------------------
--- Returns a string that is the concatenation of `n` copies of the string
--- `s`.
+-- Returns a string that is the concatenation of `n` copies of the string `s`.
 -- @function [parent=#string] rep
--- @param s
--- @param n
+-- @param #string s string to handle.
+-- @param #number n number of repetition.
+-- @return #string the concatenation of `n` copies of the string `s`.
 
 -------------------------------------------------------------------------------
 -- Returns a string that is the string `s` reversed.
 -- @function [parent=#string] reverse
--- @param s
+-- @param #string s string to handle.
+-- @return #string the string `s` reversed.
 
 -------------------------------------------------------------------------------
 -- Returns the substring of `s` that starts at `i` and continues until
@@ -195,15 +215,17 @@
 -- the call `string.sub(s,1,j)` returns a prefix of `s` with length `j`, and
 -- `string.sub(s, -i)` returns a suffix of `s` with length `i`.
 -- @function [parent=#string] sub
--- @param s
--- @param i
--- @param j
+-- @param #string s string to handle.
+-- @param #number i start index.
+-- @param #number j end index. (default value is -1, which is the same as the string lenght)
+-- @return #string the substring of `s` that starts at `i` and continues until `j`. 
 
 -------------------------------------------------------------------------------
 -- Receives a string and returns a copy of this string with all lowercase
 -- letters changed to uppercase. All other characters are left unchanged. The
 -- definition of what a lowercase letter is depends on the current locale.
 -- @function [parent=#string] upper
--- @param s
+-- @param #string s string to handle.
+-- @return #string a upper case version of `s`.
 
 return nil
