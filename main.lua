@@ -1,25 +1,28 @@
 print("If this doesn't work:")
-print(" - you should drag love_api.lua & modules/ from love-api-0.10.0 into this directory")
+print(" - you should drag love_api.lua & modules/ from love-api-0.10.1 into this directory")
 print(" - you also need to make an api/ directory. we'll overwrite if we have to.")
 
 local api = require("love_api")
 
 -- references:
 --  original LuaDoc for Koneki (LDT before data format change): https://github.com/RamiLego4Game/LOVELuaDoc-0.9.0
---  love-api (the entire LOVE api in a table): https://github.com/rm-code/love-api/ (make sure you get the -0.9.2d tag!)
+--  love-api (the entire LOVE api in a table): https://github.com/love2d-community/love-api (make sure you get the -0.10.1 tag!)
 --  how to actually write LuaDoc, with functions on tables & custom types: https://wiki.eclipse.org/LDT/User_Area/Documentation_Language
 
 print(tostring(api) .. " OK")
 
+-- we prefix every module with "love." to avoid nameclashes (e.g. math and love.math).
+-- also this is where they actually are...
 print("Patching API...")
+print("PATCH #0: Applying 'love.'-Prefix to all modules")
+for _, mod in ipairs(api.modules) do
+  mod._name = mod.name
+  mod.name = "love."..mod.name
+end
 local patchFun = require("patch")
 patchFun(api)
 
--- things to look for: functions, modules, types
-
--- don't care about callbacks really. they're few and far between.
-
--- typeFQN format: key: type name, value: fully qualified name (e.g. ["object"] = "love#Object") 
+-- typeFQN format: [type name] = fully qualified name (e.g. ["object"] = "love#Object") 
 typeFQN = {}
 -- add basic lua types
 typeFQN["boolean"] = "#boolean"
@@ -29,7 +32,7 @@ typeFQN["string"] = "#string"
 typeFQN["table"] = "#table"
 -- ... not the best, but what you gonna do ...
 typeFQN["light userdata"] = "#table"
--- dunno! (physics.Body:getUserData())
+-- dunno! (love.physics.Body:getUserData())
 typeFQN["value"] = ""
 -- ... can't express these well at all.
 typeFQN["function"] = "" -- LuaDoc expects the full function contract. We can't give it that.
@@ -144,6 +147,7 @@ local function iLoveIt()
     learnTypesAndEnums(mod)
   end
   
+  --write out everything from base love module
   love_file:write(describeAllTypes(api))
   
   love_file:write(describeAllFuncsAndCallbacks(api))
