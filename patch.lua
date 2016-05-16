@@ -1,5 +1,5 @@
 -- There seems to be some inconsistencies in the API here and there.
--- Does nothing at the moment. If you find inconsitencies, open an 
+-- Does nothing at the moment. If you find inconsistencies, open an
 -- Issue or a Pull Request at github.
 
 return function(api)
