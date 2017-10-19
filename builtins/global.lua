@@ -5,6 +5,7 @@
 -- @module global
 
 ------------------------------------------------------------------------------
+-- Framework for making 2D games in the Lua programming language
 -- @field[parent = #global] love#love love love module
 
 ------------------------------------------------------------------------------

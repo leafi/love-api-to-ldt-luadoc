@@ -32,8 +32,9 @@ typeFQN["string"] = "#string"
 typeFQN["table"] = "#table"
 -- ... not the best, but what you gonna do ...
 typeFQN["light userdata"] = "#table"
--- dunno! (love.physics.Body:getUserData())
-typeFQN["value"] = ""
+-- "value" changed to "Variant" 
+--typeFQN["value"] = ""
+typeFQN["Variant"] = "love#Variant"
 -- ... can't express these well at all.
 typeFQN["function"] = "" -- LuaDoc expects the full function contract. We can't give it that.
 typeFQN["mixed"] = "" -- this literally means 'whatever', so...

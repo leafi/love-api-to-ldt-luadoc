@@ -4,7 +4,7 @@ Probably the most important part of an Eclipse LDT Execution Environment is the 
 
 This utility creates all the files needed for a LOVE2D api.zip and puts them in api/, provided you feed it the definitions from https://github.com/love2d-community/love-api.
 
-**This project currently seems to output the last definition for a function when imported in LDT.** Every variant gets exported, though. But metalua implementation in LDT only sets the last seen function as its spec.
+**This project currently only outputs the last definition for a function when imported in LDT.** Every variant gets exported, though. But metalua implementation in LDT only sets the last seen function as its spec.
 
 **Enum definitions aren't encoded.**
 
@@ -18,7 +18,7 @@ Obviously https://github.com/love2d-community/love-api is incredibly important, 
 
 ## How to use
 
-1. Grab https://github.com/love2d-community/love-api. This specific build is tested against https://github.com/love2d-community/love-api/tree/241ebb963bd951df7d7499cc21dc1a19bd22b963
+1. Grab https://github.com/love2d-community/love-api. This build of love-api-to-ldt-luadoc is tested against https://github.com/love2d-community/love-api/tree/d8d9524e199411760f4e7230acc3563a1de69adb.
 
 2. Checkout/download this repository (love-api-to-ldt-luadoc).
 
