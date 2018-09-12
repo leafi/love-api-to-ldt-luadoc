@@ -18,7 +18,7 @@ Obviously https://github.com/love2d-community/love-api is incredibly important, 
 
 ## How to use
 
-1. Grab https://github.com/love2d-community/love-api. This build of love-api-to-ldt-luadoc is tested against https://github.com/love2d-community/love-api/tree/d8d9524e199411760f4e7230acc3563a1de69adb.
+1. Grab https://github.com/love2d-community/love-api. This build of love-api-to-ldt-luadoc is tested against https://github.com/love2d-community/love-api/tree/b77aa5a848d8077ff1b2677a1dba55b649838ede.
 
 2. Checkout/download this repository (love-api-to-ldt-luadoc).
 
